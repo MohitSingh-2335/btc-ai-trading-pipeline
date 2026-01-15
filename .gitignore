@@ -1,0 +1,18 @@
+# Python environment
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables (Safety)
+.env
+
+# Data and Logs (Too large for Git)
+data/
+logs/
+
+# Trained Models (Optional: Keep if small, ignore if huge. Let's ignore for now)
+models/training/*.joblib
+
+# IDE settings
+.vscode/
+.idea/

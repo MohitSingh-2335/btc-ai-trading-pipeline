@@ -1,0 +1,31 @@
+# Data Engineering & math
+pandas
+numpy
+dask[complete]
+pyarrow
+
+# Machine Learning & Explainability
+scikit-learn
+lightgbm
+shap
+prophet
+optuna
+
+# Trading & Crypto
+ccxt
+ta-lib
+backtrader
+
+# Blockchain / Web3
+web3
+
+# Dashboarding & Visualization
+streamlit
+matplotlib
+plotly
+
+# Utilities
+python-dotenv
+requests
+pytest
+pydoc-markdown
