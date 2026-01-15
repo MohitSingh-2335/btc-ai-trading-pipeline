@@ -53,7 +53,9 @@ python3 scripts/train_backtest.py
 # Step 4: Launch Dashboard
 streamlit run streamlit_app/app.py
 
-### Project Structure
+
+
+## Project Structure
 
 btc_trading_pipeline/
 ├── data/               # Parquet files (Raw & Cleaned)
@@ -64,7 +66,7 @@ btc_trading_pipeline/
 ├── streamlit_app/      # Visualization Dashboard
 └── logs/               # Trade history and system logs
 
-### Future Roadmap:
+## Future Roadmap:
 
 [ ] Connect to live Web3.py nodes for real-time DePIN data.
 
