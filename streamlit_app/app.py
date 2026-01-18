@@ -32,7 +32,11 @@ def load_trade_history():
 def load_system_logs():
     log_path = os.path.join('logs', 'system_memory.csv')
     if os.path.exists(log_path):
-        return pd.read_csv(log_path)
+        df = pd.read_csv(log_path)
+        # Ensure new column exists if reading old CSV
+        if 'anomaly_score' not in df.columns:
+            df['anomaly_score'] = 0.0
+        return df
     return pd.DataFrame()
 
 st.title("BTC/USDT AI-Driven Trading Pipeline 🚀")
@@ -165,12 +169,36 @@ if not sys_df.empty:
         st.plotly_chart(fig_sent, use_container_width=True)
 
     # Drift Metric
-    avg_conf = sys_df['model_confidence'].tail(5).mean()
-    st.info(f"📊 Recent Average Confidence (Last 5 Runs): **{avg_conf:.2%}**")
-    if avg_conf < 0.52:
-        st.error("⚠️ Warning: Model Confidence is Low. Market regime may be drifting.")
+# --- Deep Learning Safety Layer ---
+    st.write("---")
+    st.subheader("🧠 Deep Learning Circuit Breaker (LSTM)")
+    
+    last_anom = sys_df['anomaly_score'].iloc[-1]
+    
+    # Create a Gauge Chart for Anomaly Score
+    fig_gauge = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = last_anom,
+        title = {'text': "Market Anomaly Score (MSE)"},
+        gauge = {
+            'axis': {'range': [0, 0.1]},
+            'bar': {'color': "red" if last_anom > 0.05 else "green"},
+            'steps': [
+                {'range': [0, 0.05], 'color': "lightgreen"},
+                {'range': [0.05, 0.1], 'color': "salmon"}],
+            'threshold': {
+                'line': {'color': "red", 'width': 4},
+                'thickness': 0.75,
+                'value': 0.05
+            }
+        }
+    ))
+    fig_gauge.update_layout(height=250, margin=dict(l=20, r=20, t=30, b=20))
+    st.plotly_chart(fig_gauge, use_container_width=True)
+    
+    if last_anom > 0.05:
+        st.error("🚨 CRITICAL: LSTM Autoencoder detects high market anomaly. Trading Halted.")
     else:
-        st.success("✅ Model is operating with healthy confidence levels.")
-
+        st.success("✅ Market Behavior is Normal. Trading Algorithms Active.")
 else:
     st.warning("No system logs found yet. Run the main_loop.py to generate MLOps data.")
