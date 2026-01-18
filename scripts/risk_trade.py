@@ -54,6 +54,28 @@ def execute_paper_trade(signal, price, size, sentiment_score):
         
     print(f"Trade EXECUTED: BUY ${size:.2f} BTC at ${price:.2f} | Sentiment: {sentiment_score:.2f}")
 
+def log_system_state(timestamp, price, sentiment, prediction, probability, signal_type):
+    """
+    Saves a snapshot of the AI's state for future retraining.
+    """
+    log_path = os.path.join('logs', 'system_memory.csv')
+    
+    new_row = {
+        'timestamp': timestamp,
+        'btc_price': price,
+        'news_sentiment': sentiment,
+        'model_prediction': prediction,
+        'model_confidence': probability,
+        'signal_type': signal_type 
+    }
+    
+    # Check if header is needed (if file doesn't exist)
+    header = not os.path.exists(log_path)
+    
+    # Append to CSV
+    pd.DataFrame([new_row]).to_csv(log_path, mode='a', header=header, index=False)
+    print(f"📝 Data Recorded to logs/system_memory.csv")
+
 if __name__ == "__main__":
     print("Starting trading cycle...")
     
@@ -79,3 +101,6 @@ if __name__ == "__main__":
             execute_paper_trade(1, current_price, size, news_score)
     else:
         print("Risk Manager: No trade entry conditions met.")
+
+log_system_state(datetime.now().isoformat(), current_price, news_score, ml_pred, ml_prob, "EXECUTED" if ml_pred == 1 and news_signal != -1 else "BLOCKED/HOLD")
+

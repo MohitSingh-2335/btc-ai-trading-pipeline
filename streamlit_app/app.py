@@ -29,6 +29,12 @@ def load_trade_history():
             return json.load(f)
     return []
 
+def load_system_logs():
+    log_path = os.path.join('logs', 'system_memory.csv')
+    if os.path.exists(log_path):
+        return pd.read_csv(log_path)
+    return pd.DataFrame()
+
 st.title("BTC/USDT AI-Driven Trading Pipeline 🚀")
 st.markdown("### DePIN-Integrated De-Fi Trading System with NLP")
 
@@ -99,3 +105,72 @@ if history:
     st.dataframe(log_df, use_container_width=True)
 else:
     st.info("No trades executed yet.")
+
+st.markdown("---")
+st.subheader("🛠 MLOps: Model Health & Drift Monitoring")
+
+sys_df = load_system_logs()
+
+if not sys_df.empty:
+    # Convert timestamp to datetime
+    sys_df['timestamp'] = pd.to_datetime(sys_df['timestamp'])
+    
+    # Create 2 columns for MLOps charts
+    m1, m2 = st.columns(2)
+    
+    with m1:
+        st.write("**Model Confidence Over Time**")
+        # Plot Confidence
+        fig_conf = go.Figure()
+        fig_conf.add_trace(go.Scatter(
+            x=sys_df['timestamp'], 
+            y=sys_df['model_confidence'],
+            mode='lines+markers',
+            name='Confidence',
+            line=dict(color='#00ff00', width=2)
+        ))
+        fig_conf.update_layout(height=300, yaxis_title="Probability (0-1)", margin=dict(l=0, r=0, t=0, b=0))
+        st.plotly_chart(fig_conf, use_container_width=True)
+        
+    with m2:
+        st.write("**News Sentiment vs. Price**")
+        # Plot Sentiment vs Price
+        fig_sent = go.Figure()
+        
+        # News Sentiment (Bar)
+        fig_sent.add_trace(go.Bar(
+            x=sys_df['timestamp'], 
+            y=sys_df['news_sentiment'],
+            name='Sentiment',
+            marker_color='orange',
+            opacity=0.6
+        ))
+        
+        # Price (Line) - Secondary Axis
+        fig_sent.add_trace(go.Scatter(
+            x=sys_df['timestamp'], 
+            y=sys_df['btc_price'],
+            name='BTC Price',
+            yaxis='y2',
+            line=dict(color='blue')
+        ))
+        
+        fig_sent.update_layout(
+            height=300, 
+            yaxis=dict(title="Sentiment (-1 to 1)"),
+            yaxis2=dict(title="Price ($)", overlaying='y', side='right'),
+            margin=dict(l=0, r=0, t=0, b=0),
+            legend=dict(x=0, y=1.2, orientation='h')
+        )
+        st.plotly_chart(fig_sent, use_container_width=True)
+
+    # Drift Metric
+    avg_conf = sys_df['model_confidence'].tail(5).mean()
+    st.info(f"📊 Recent Average Confidence (Last 5 Runs): **{avg_conf:.2%}**")
+    if avg_conf < 0.52:
+        st.error("⚠️ Warning: Model Confidence is Low. Market regime may be drifting.")
+    else:
+        st.success("✅ Model is operating with healthy confidence levels.")
+
+else:
+    st.warning("No system logs found yet. Run the main_loop.py to generate MLOps data.")
