@@ -1,47 +1,70 @@
 import pandas as pd
-import joblib
 import os
 import sys
 
 # Add path to find modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# SETTINGS
+RETRAIN_THRESHOLD = 50  # Retrain every 50 cycles (minutes)
+
 def retrain_model():
-    print("🔄 Starting Automated Retraining Sequence...")
+    print("🔄 [MLOps] Starting Automated Retraining Sequence...")
     
-    # 1. Load the "Memory" (New Data)
+    # 1. Load the "Memory" (New Data from the Loop)
     log_path = os.path.join('logs', 'system_memory.csv')
+    
     if not os.path.exists(log_path):
-        print("⚠️ No new data found in system_memory.csv. Skipping.")
-        return
-        
-    new_data = pd.read_csv(log_path)
-    if len(new_data) < 50:
-        print(f"⚠️ Not enough new data ({len(new_data)} rows). Need 50+. Skipping.")
+        print("⚠️ No system logs found. Skipping.")
         return
 
-    print(f"✅ Found {len(new_data)} new data points. Retraining...")
-    
-    # 2. Load the Old Model
-    model_path = os.path.join('models', 'training', 'btc_usdt_1h_model.joblib')
     try:
-        model = joblib.load(model_path)
-    except:
-        print("❌ Could not load existing model.")
+        df = pd.read_csv(log_path)
+    except Exception as e:
+        print(f"⚠️ Could not read log file: {e}")
         return
 
-    # 3. Simulate "Online Learning" 
-    # (In real LightGBM, we use 'init_model', here we just simulate the success for the demo)
-    # real code would be: model.fit(new_X, new_y, init_model=model)
+    # 2. Check Threshold
+    if len(df) < RETRAIN_THRESHOLD:
+        print(f"⏳ Not enough new data ({len(df)}/{RETRAIN_THRESHOLD} rows). Waiting...")
+        return
+
+    print(f"✅ Triggering Retrain! Found {len(df)} new data points.")
     
-    print("🧠 Updating Model Weights with new market regimes...")
-    # We save it back to show the timestamp updated
-    joblib.dump(model, model_path)
+    # 3. Archive the Memory (Don't delete it!)
+    archive_path = os.path.join('logs', 'system_memory_archive.csv')
     
-    # 4. Clear the memory (so we don't learn same data twice)
-    # In production, you'd move this to an archive folder instead of deleting
-    os.remove(log_path)
-    print("✅ Model Retrained & Saved. Memory buffer cleared.")
+    # Append to archive
+    if os.path.exists(archive_path):
+         df.to_csv(archive_path, mode='a', header=False, index=False)
+    else:
+         df.to_csv(archive_path, index=False)
+         
+    # Clear the active log file for the next batch
+    open(log_path, 'w').close() 
+
+    # 4. RUN THE FULL LEARNING PIPELINE
+    # This effectively "Re-Reads the whole textbook" including the new chapters
+    
+    print("   ⬇️  Fetching latest complete dataset...")
+    exit_code = os.system("python3 scripts/ingest_clean.py > /dev/null")
+    if exit_code != 0:
+        print("❌ Error in Ingestion. Aborting.")
+        return
+    
+    print("   🛠  Updating feature engineering...")
+    exit_code = os.system("python3 scripts/feature_engine.py > /dev/null")
+    if exit_code != 0:
+        print("❌ Error in Feature Engineering. Aborting.")
+        return
+    
+    print("   🧠  Training new LightGBM model...")
+    exit_code = os.system("python3 scripts/train_model.py")
+    
+    if exit_code == 0:
+        print("✅ Retraining Complete. Model Updated.")
+    else:
+        print("❌ Training Failed.")
 
 if __name__ == "__main__":
     retrain_model()
