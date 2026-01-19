@@ -1,78 +1,39 @@
-# BTC/USDT AI-Driven Trading Pipeline 🚀
+# 📉 Quantitative AI Trading System (LSTM + LightGBM)
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![AI](https://img.shields.io/badge/AI-LightGBM%20%2B%20SHAP-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
+![AI](https://img.shields.io/badge/AI-Deep%20Learning-red)
+![Status](https://img.shields.io/badge/Status-Production-green)
 
 ## 📋 Overview
-A modular, explainable AI trading system for Bitcoin (BTC/USDT) that bridges **Quantitative Finance** and **DePIN (Decentralized Physical Infrastructure)** concepts. 
+An institutional-grade algorithmic trading pipeline that combines **Gradient Boosting (LightGBM)** for directional prediction with **Deep Learning (LSTM Autoencoders)** for anomaly detection.
 
-Unlike black-box trading bots, this pipeline emphasizes **Explainable AI (XAI)**. It uses **LightGBM** for predictive modeling and **SHAP (Shapley Additive Explanations)** to visualize exactly *why* the model enters a trade—whether it's driven by technical momentum or simulated on-chain network activity.
+Unlike standard bots, this system features a **"Self-Healing" Architecture**: it continuously monitors its own confidence and market entropy, automatically halting trading during "Black Swan" events using an unsupervised neural network.
 
-## ✨ Key Features (Resume Highlights)
+## ✨ Key Features
 
-### 🧠 Explainable ML Engine
-- **Model:** Gradient Boosting (LightGBM) trained on historical Binance data.
-- **Transparency:** Integrated `shap` library to generate feature importance plots for every prediction, solving the "black box" problem in algorithmic trading.
+### 🧠 Dual-Model Architecture
+1.  **Alpha Engine (LightGBM):** Analyzes technical indicators (RSI, Bollinger Bands, MACD) to predict short-term price direction.
+2.  **Risk Engine (PyTorch LSTM):** An unsupervised Autoencoder that learns "normal" market structure. If reconstruction error spikes (High MSE), it triggers a circuit breaker to stop trading.
 
-### 🔗 DePIN & On-Chain Integration
-- **Simulation:** Includes a custom plugin that simulates **DePIN** metrics (Active Addresses, Network Hashrate) to augment price data with fundamental blockchain health signals.
-- **Hypothesis:** Blending price action (Technical Analysis) with Network Usage (Fundamental Analysis) yields higher Sharpe ratios.
+### 🛠 MLOps & Monitoring
+- **Drift Detection:** Real-time tracking of model confidence scores to detect regime changes.
+- **Explainable AI (SHAP):** breakdown of why every trade was taken (e.g., "Bought because Volume > 200% avg").
+- **System Memory:** Logs every inference tick to `system_memory.csv` for future retraining (Continuous Learning).
 
-### 📊 Full-Stack Dashboard
-- **Tech Stack:** Streamlit + Plotly.
-- **Capabilities:** Real-time visualization of equity curves, model confidence levels, and live buy/sell signals.
+### ⚡ Engineering Stack
+- **Data:** CCXT (Binance API) + Pandas
+- **Training:** Scikit-Learn + LightGBM
+- **Deep Learning:** PyTorch
+- **Dashboard:** Streamlit + Plotly (Real-time visualization)
 
-### 🛠 Engineering Best Practices
-- **Modular Architecture:** Plugins (e.g., Sentiment Analysis, Risk Manager) are decoupled from the core execution engine.
-- **Idempotency:** Trade execution uses UUIDs to prevent duplicate orders during network retries.
-- **Safe Paper Trading:** Fully simulated execution environment with JSON logging.
-
-## Quick Start
-
-### 1. Installation
+## 🚀 Quick Start
 ```bash
-# Clone the repo
-git clone [https://github.com/MohitSingh-2335/btc-ai-trading-pipeline.git](https://github.com/MohitSingh-2335/btc-ai-trading-pipeline.git)
-cd btc-ai-trading-pipeline
-
-# Install dependencies (Linux/WSL2 recommended for TA-Lib)
+# 1. Install
 pip install -r requirements.txt
 
-### 2. Run the Pipeline
+# 2. Run the Autonomous Loop (Backend)
+python3 main_loop.py
 
-# Step 1: Fetch and Clean Data
-python3 scripts/ingest_clean.py
-
-# Step 2: Generate Features (TA-Lib + DePIN metrics)
-python3 scripts/feature_engine.py
-
-# Step 3: Train Model
-python3 scripts/train_backtest.py
-
-# Step 4: Launch Dashboard
+# 3. Launch Dashboard (Frontend)
 streamlit run streamlit_app/app.py
-
-
-
-## Project Structure
-
-btc_trading_pipeline/
-├── data/               # Parquet files (Raw & Cleaned)
-├── features/           # Feature engineered datasets
-├── models/             # Trained LightGBM models & SHAP explainers
-├── modules/            # Plugins (Sentiment, On-Chain)
-├── scripts/            # Core logic (Ingest, Train, Trade)
-├── streamlit_app/      # Visualization Dashboard
-└── logs/               # Trade history and system logs
-
-## Future Roadmap:
-
-[ ] Connect to live Web3.py nodes for real-time DePIN data.
-
-[ ] Implement LSTM Autoencoders for anomaly detection.
-
-[ ] Containerize with Docker for cloud deployment.
-
----
 
