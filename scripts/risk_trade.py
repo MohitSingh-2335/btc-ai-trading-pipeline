@@ -84,8 +84,13 @@ if __name__ == "__main__":
     ml_pred, ml_prob, current_price = get_latest_signal(model, df)
     
     # 2. Sentiment (NLP)
-    sentiment_plugin = SentimentPlugin()
-    _, news_score = sentiment_plugin.get_sentiment_signal()
+    try:
+        sentiment_plugin = SentimentPlugin()
+        # We capture both Signal (Direction) and Score (Intensity)
+        news_signal, news_score = sentiment_plugin.get_sentiment_signal()
+    except Exception as e:
+        print(f"⚠️ NLP Error: {e} (Defaulting to Neutral)")
+        news_signal, news_score = 0, 0.0
     
     # 3. Risk (LSTM)
     detector = MarketAnomalyDetector()
