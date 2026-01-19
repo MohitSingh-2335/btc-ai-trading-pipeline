@@ -1,0 +1,19 @@
+system:
+  cycle_time: 60           # Seconds to sleep between cycles
+  retrain_threshold: 50    # How many new rows before auto-retraining
+
+trading:
+  symbol: "BTC/USDT"
+  trade_size_pct: 0.02     # Risk 2% of portfolio per trade
+  min_confidence: 0.55     # Minimum ML probability to trigger a trade
+  stop_loss_pct: 0.02      # 2% Stop Loss
+
+risk:
+  max_gas_gwei: 50         # Don't trade if ETH gas is above 50
+  sentiment_threshold: -0.2 # Don't buy if news is worse than -0.2
+  anomaly_sensitivity: 1.0 # Multiplier for anomaly detection
+
+paths:
+  data: "data/clean/btc_usdt_1h.parquet"
+  model: "models/training/btc_usdt_1h_model.joblib"
+  logs: "logs/system_memory.csv"
